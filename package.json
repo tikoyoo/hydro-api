@@ -1,0 +1,13 @@
+{
+  "name": "@hydrooj/plugin-api",
+  "version": "1.2.0",
+  "private": false,
+  "description": "HydroCordis SPA JSON shim: record (contest+exclude pretest), user/me, problems, contests, domainUsers, sync bootstrap",
+  "main": "src/index.ts",
+  "keywords": ["hydrooj", "hydrooj-plugin"],
+  "license": "MIT",
+  "dependencies": {
+    "hydrooj": "*",
+    "mongodb": "*"
+  }
+}
