@@ -7,7 +7,6 @@
   "keywords": ["hydrooj", "hydrooj-plugin"],
   "license": "MIT",
   "dependencies": {
-    "hydrooj": "*",
-    "mongodb": "*"
+    "hydrooj": "*"
   }
 }
