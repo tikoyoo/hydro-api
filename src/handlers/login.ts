@@ -10,6 +10,8 @@ import crypto from 'crypto';
  * 与 `packages/hydrooj/src/model/user.ts` 中 verifyPassword 语义一致。
  */
 export class LoginHandler extends Handler {
+  noCheckPermView = true;
+
   async post() {
     const body = (this as unknown as { request?: { body?: Record<string, unknown> } }).request?.body;
     if (!body || typeof body !== 'object') {

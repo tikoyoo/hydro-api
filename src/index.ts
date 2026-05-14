@@ -1,47 +1,36 @@
 import type { Context, Handler } from 'hydrooj';
 import { attachApiCors } from './lib/cors';
 import { UserGetHandler } from './handlers/user';
-import { ProblemListHandler, ProblemDetailHandler } from './handlers/problem';
-import { ContestListHandler, ContestDetailHandler } from './handlers/contest';
-import { RecordListHandler } from './handlers/record';
 import { DomainUsersHandler } from './handlers/domainUsers';
 import { SyncHealthHandler, SyncBootstrapHandler } from './handlers/syncBootstrap';
 import { LoginHandler } from './handlers/login';
 
+/**
+ * Hydro 插件：只注册原生没有的 JSON API 端点。
+ * /api/problem, /api/contest, /api/record 由 Hydro 原生提供，不重复注册。
+ */
+
 const BEFORE_HOOKS = [
-  'handler/before/api_user_me',
-  'handler/before/api_problem_list',
-  'handler/before/api_problem_detail',
-  'handler/before/api_contest_list',
-  'handler/before/api_contest_detail',
-  'handler/before/api_record_list',
-  'handler/before/api_domain_users',
+  'handler/before/user_me',
+  'handler/before/domain_users',
   'handler/before/sync_health',
   'handler/before/sync_bootstrap',
-  'handler/before/api_login',
+  'handler/before/login',
+];
+
+const ROUTES: [string, string, new () => Handler][] = [
+  ['user_me', '/api/user/me', UserGetHandler],
+  ['domain_users', '/api/domainUsers', DomainUsersHandler],
+  ['sync_health', '/api/sync/health', SyncHealthHandler],
+  ['sync_bootstrap', '/api/sync/bootstrap', SyncBootstrapHandler],
+  ['login', '/api/login', LoginHandler],
 ];
 
 export async function apply(ctx: Context): Promise<void> {
   for (const ev of BEFORE_HOOKS) {
-    ctx.on(ev, (h: Handler) => {
-      attachApiCors(h);
-    });
+    ctx.on(ev, (h: Handler) => { attachApiCors(h); });
   }
-
-  ctx.Route('api_user_me', '/api/user/me', UserGetHandler);
-
-  ctx.Route('api_problem_list', '/api/problem', ProblemListHandler);
-  ctx.Route('api_problem_detail', '/api/problem/:pid', ProblemDetailHandler);
-
-  ctx.Route('api_contest_list', '/api/contest', ContestListHandler);
-  ctx.Route('api_contest_detail', '/api/contest/:tid', ContestDetailHandler);
-
-  ctx.Route('api_record_list', '/api/record', RecordListHandler);
-
-  ctx.Route('api_domain_users', '/api/domainUsers', DomainUsersHandler);
-
-  ctx.Route('api_login', '/api/login', LoginHandler);
-
-  ctx.Route('sync_health', '/api/sync/health', SyncHealthHandler);
-  ctx.Route('sync_bootstrap', '/api/sync/bootstrap', SyncBootstrapHandler);
+  for (const [name, path, HandlerClass] of ROUTES) {
+    ctx.Route(name, path, HandlerClass);
+  }
 }

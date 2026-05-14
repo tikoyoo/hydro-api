@@ -1,6 +1,8 @@
 import { Handler } from 'hydrooj';
 
 export class UserGetHandler extends Handler {
+  noCheckPermView = true;
+
   async get() {
     try {
       const u = this.user as Record<string, unknown> & { _id?: number; hash?: unknown; salt?: unknown };
