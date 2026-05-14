@@ -3,15 +3,16 @@
 本文件落实「按功能模块核对数据与 API」：标明 **hydro-api 插件是否提供**，以及浏览器侧如何自检。同源路径以站点根 `/` 为准；若配置了 `VITE_HYDRO_PLUGIN_ORIGIN`，`GET /api/domainUsers` 等可能指向独立源（需与 CDN/反代策略一致）。
 
 **本仓库 `hydro-api` Cordis 插件实际注册的路由**（见 `hydro-api/src/index.ts`）：  
-`POST /api/login`、`GET /api/user/me`、`GET /api/domainUsers`、`GET /api/sync/health`、`GET /api/sync/bootstrap`。
+`POST /api/login`、`GET /api/user/me`、`GET /api/problem`、`GET /api/contest`、`GET /api/domainUsers`、`GET /api/sync/health`、`GET /api/sync/bootstrap`。
 
-题库/比赛/评测列表等 **`GET /api/problem`、`/api/contest`、`/api/record`** 由 **Hydro 原生或其它层** 提供（插件内虽有 `handlers/problem.ts` 等，**默认不注册**，避免与 Hydro 路由名冲突）。若需由本仓库实现这些 GET，须在 `index.ts` 中显式 `ctx.Route`（并处理与原生冲突）。
+`GET /api/contest/:tid` **未**在插件注册；详情以 Hydro **`GET /contest/:tid`**（`Accept: application/json`）为主。  
+评测列表 **`GET /api/record`** 由站点 Hydro 原生、网关或其它补丁提供。
 
 ---
 
 ## 0. 后端完整自检（推荐：先跑满再测前端）
 
-脚本对 **插件五连** + **`/api/problem` `/api/contest` `/ranking` `/p` `/api/record` `/d/{domain}/homework` `/training`** 做连通与 JSON 形态检查；将 `{"url":"/login?..."}` 判为 **FAIL**（非“空 users”）。
+脚本对 **插件已注册路由**（含 **`/api/problem`、`/api/contest`**）及 **`/ranking` `/p` `/api/record` `/d/{domain}/homework` `/training`** 等做连通与 JSON 形态检查；将 `{"url":"/login?..."}` 判为 **FAIL**（非“空 users”）。
 
 ### Bash（Linux / 服务器本机）
 

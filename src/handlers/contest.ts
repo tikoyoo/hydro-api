@@ -14,6 +14,9 @@ const PROBLEM_PROJECTION = {
 };
 
 export class ContestListHandler extends Handler {
+  /** 列表与 SPA 对齐：免登录可查（与 GET /api/problem 一致）；若站点要求登录再改权限 */
+  noCheckPermView = true;
+
   @param('page', Types.PositiveInt, true)
   @param('limit', Types.PositiveInt, true)
   async get(domainId: string, page = 1, limit = 50) {

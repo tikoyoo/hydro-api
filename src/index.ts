@@ -5,11 +5,12 @@ import { DomainUsersHandler } from './handlers/domainUsers';
 import { SyncHealthHandler, SyncBootstrapHandler } from './handlers/syncBootstrap';
 import { LoginHandler } from './handlers/login';
 import { ProblemListHandler } from './handlers/problem';
+import { ContestListHandler } from './handlers/contest';
 
 /**
  * Hydro 插件：注册 SPA 所需 GET JSON。
- * 原生 `ProblemApi` 仅有 `problem`/`problems`（按 id），**无**分页列表；题库须 `GET /api/problem`（本插件）。
- * `/api/contest`、`/api/record` 仍由站点其它层或原生提供，未在此重复注册以免路由名冲突。
+ * 原生不提供这些分页列表：`GET /api/problem`、`GET /api/contest`。
+ * `/api/contest/:tid`、`/api/record`、赛板 web 路由仍主要由 Hydro（或其它层）承担；详情可先走 `/contest/:id` Accept JSON。
  */
 
 const BEFORE_HOOKS = [
@@ -19,6 +20,7 @@ const BEFORE_HOOKS = [
   'handler/before/sync_bootstrap',
   'handler/before/login',
   'handler/before/problem_list',
+  'handler/before/contest_list',
 ];
 
 const ROUTES: [string, string, new () => Handler][] = [
@@ -28,6 +30,7 @@ const ROUTES: [string, string, new () => Handler][] = [
   ['sync_bootstrap', '/api/sync/bootstrap', SyncBootstrapHandler],
   ['login', '/api/login', LoginHandler],
   ['edu_problem_list', '/api/problem', ProblemListHandler],
+  ['edu_contest_list', '/api/contest', ContestListHandler],
 ];
 
 export async function apply(ctx: Context): Promise<void> {
