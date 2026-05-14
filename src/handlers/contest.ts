@@ -13,7 +13,8 @@ const PROBLEM_PROJECTION = {
   _id: 1, docId: 1, pid: 1, title: 1, nSubmit: 1, nAccept: 1, difficulty: 1, tag: 1,
 };
 
-export class ContestListHandler extends Handler {
+/** 类名勿用 `ContestListHandler`：会与 Hydro 核心路由名 `ContestList` 冲突 */
+export class EduContestListApiHandler extends Handler {
   /** 列表与 SPA 对齐：免登录可查（与 GET /api/problem 一致）；若站点要求登录再改权限 */
   noCheckPermView = true;
 
@@ -59,7 +60,7 @@ export class ContestListHandler extends Handler {
   }
 }
 
-export class ContestDetailHandler extends Handler {
+export class EduContestDetailApiHandler extends Handler {
   @param('tid', Types.ObjectId)
   async get(domainId: string, tid: ObjectId) {
     try {
@@ -90,7 +91,6 @@ export class ContestDetailHandler extends Handler {
         uid: this.user._id,
       });
 
-      // ── 收集需要补全的 uid 和 pid ──
       const uidSet = new Set<number>();
       if (typeof (tdoc as { owner?: number }).owner === 'number') uidSet.add((tdoc as { owner: number }).owner);
       if (typeof (tdoc as { maintainer?: number }).maintainer === 'number') uidSet.add((tdoc as { maintainer: number }).maintainer);
@@ -102,7 +102,6 @@ export class ContestDetailHandler extends Handler {
         ? ((tdoc as { pids: unknown[] }).pids as number[]).filter((p) => typeof p === 'number')
         : [];
 
-      // ── 并行查 udict 和 pdict ──
       const [udocs, pdocs] = await Promise.all([
         uidSet.size > 0
           ? db.collection('user').find({ _id: { $in: [...uidSet] } }).project(USER_PROJECTION).toArray()

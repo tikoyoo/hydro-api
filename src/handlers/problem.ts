@@ -12,7 +12,8 @@ const DETAIL_PROJECTION = {
   owner: 1, maintainer: 1, config: 1, data: 1, hidden: 1,
 };
 
-export class ProblemListHandler extends Handler {
+/** 类名勿用 `ProblemListHandler`：会与 Hydro 核心路由名 `ProblemList` 冲突，导致插件 GET 未生效 */
+export class EduProblemListApiHandler extends Handler {
   /** 与 README 一致：题库列表免登录可读；需限制请改为权限检查 */
   noCheckPermView = true;
 
@@ -49,7 +50,7 @@ export class ProblemListHandler extends Handler {
   }
 }
 
-export class ProblemDetailHandler extends Handler {
+export class EduProblemDetailApiHandler extends Handler {
   @param('pid', Types.String)
   async get(domainId: string, pid: string) {
     try {
