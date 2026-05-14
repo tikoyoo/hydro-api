@@ -2,14 +2,39 @@
 
 本文件落实「按功能模块核对数据与 API」：标明 **hydro-api 插件是否提供**，以及浏览器侧如何自检。同源路径以站点根 `/` 为准；若配置了 `VITE_HYDRO_PLUGIN_ORIGIN`，`GET /api/domainUsers` 等可能指向独立源（需与 CDN/反代策略一致）。
 
-**插件已实现路由**（见 `src/index.ts`）：  
-`POST /api/login`、`GET /api/user/me`、`/api/problem`、`/api/contest`、`/api/record`、`/api/domainUsers`、`/api/sync/health`、`/api/sync/bootstrap`。
+**本仓库 `hydro-api` Cordis 插件实际注册的路由**（见 `hydro-api/src/index.ts`）：  
+`POST /api/login`、`GET /api/user/me`、`GET /api/domainUsers`、`GET /api/sync/health`、`GET /api/sync/bootstrap`。
+
+题库/比赛/评测列表等 **`GET /api/problem`、`/api/contest`、`/api/record`** 由 **Hydro 原生或其它层** 提供（插件内虽有 `handlers/problem.ts` 等，**默认不注册**，避免与 Hydro 路由名冲突）。若需由本仓库实现这些 GET，须在 `index.ts` 中显式 `ctx.Route`（并处理与原生冲突）。
 
 ---
 
-## 0. 命令行自检（服务器 / 开发者）
+## 0. 后端完整自检（推荐：先跑满再测前端）
 
-### Bash（Linux / Git Bash）
+脚本对 **插件五连** + **`/api/problem` `/api/contest` `/ranking` `/p` `/api/record` `/d/{domain}/homework` `/training`** 做连通与 JSON 形态检查；将 `{"url":"/login?..."}` 判为 **FAIL**（非“空 users”）。
+
+### Bash（Linux / 服务器本机）
+
+```bash
+export BASE_URL=http://127.0.0.1:8888    # 或 https://你的域名
+export DOMAIN_ID=system
+export MY_UID=                             # 可选，测 /api/record?uid=
+export COOKIE_HEADER='Cookie: sid=...'     # 可选，已登录时再测 bootstrap/record
+chmod +x hydro-api/scripts/verify-backend-full.sh
+./hydro-api/scripts/verify-backend-full.sh
+```
+
+### Windows PowerShell
+
+```powershell
+$env:BASE_URL="http://127.0.0.1:8888"; $env:DOMAIN_ID="system"
+# 可选: $env:MY_UID="27"; $env:COOKIE_HEADER="Cookie: ..."
+powershell -ExecutionPolicy Bypass -File hydro-api/scripts/verify-backend-full.ps1
+```
+
+汇总 **FAIL=0** 后再做前端：`npm run dev`，DevTools Network 用真实登录态复核（尤其 `/ranking`、`/api/domainUsers`、要带 `uids`/`excludePretest` 的 record）。
+
+以下为轻量 **`verify-apis` 旧脚本**（仍可用）：
 
 ```bash
 export BASE_URL=https://你的域名   # 或 http://127.0.0.1:8888

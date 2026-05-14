@@ -13,6 +13,9 @@ const DETAIL_PROJECTION = {
 };
 
 export class ProblemListHandler extends Handler {
+  /** 与 README 一致：题库列表免登录可读；需限制请改为权限检查 */
+  noCheckPermView = true;
+
   @param('page', Types.PositiveInt, true)
   @param('limit', Types.PositiveInt, true)
   @param('q', Types.String, true)
